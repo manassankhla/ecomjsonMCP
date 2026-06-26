@@ -72,7 +72,7 @@ const handler = createMcpHandler(async (server) => {
     })
   );
 
-  // @ts-ignore
+  // @ts-expect-error
   server.registerTool(
     contentWidget.id,
     {
