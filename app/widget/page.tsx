@@ -16,12 +16,21 @@ type Product = {
 
 export default function WidgetPage() {
   const data = useWidgetProps<{
-    structuredContent: {
+    structuredContent?: {
       products: Product[];
+    };
+    _meta?: {
+      structuredContent?: {
+        products: Product[];
+      };
     };
   }>();
 
-  if (!data) {
+  const products =
+    data?._meta?.structuredContent?.products ||
+    data?.structuredContent?.products;
+
+  if (!products) {
     return (
       <main className="flex min-h-screen items-center justify-center">
         Loading...
@@ -31,7 +40,7 @@ export default function WidgetPage() {
 
   return (
     <main className="p-8">
-      <ProductGrid products={data.structuredContent.products} />
+      <ProductGrid products={products} />
     </main>
   );
 }

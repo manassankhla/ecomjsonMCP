@@ -36,7 +36,10 @@ function createServer() {
           ui: {
             resourceUri: "https://ecomjson-mcp.vercel.app/widget",
           },
-          "openai/outputTemplate": "https://ecomjson-mcp.vercel.app/widget"
+          "openai/outputTemplate": "https://ecomjson-mcp.vercel.app/widget",
+          structuredContent: {
+            products,
+          }
         },
       };
     }
