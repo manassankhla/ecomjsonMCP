@@ -29,13 +29,14 @@ function createServer() {
         content: [
           {
             type: "text",
-            text: `Found ${products.length} product(s).`,
+            text: JSON.stringify(products, null, 2),
           },
         ],
         _meta: {
           ui: {
             resourceUri: "https://ecomjson-mcp.vercel.app/widget",
           },
+          "openai/outputTemplate": "https://ecomjson-mcp.vercel.app/widget"
         },
       };
     }
