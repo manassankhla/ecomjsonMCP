@@ -1,0 +1,37 @@
+[
+  {
+    "id": "1",
+    "title": "Colgate Total Toothpaste",
+    "description": "12-hour antibacterial protection.",
+    "brand": "Colgate",
+    "category": "Toothpaste",
+    "price": 5.99,
+    "currency": "USD",
+    "rating": 4.8,
+    "stock": 120,
+    "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSRJF6hgqOAzeX2K4PLDtwv832gpEHUrJbeckKn6nUKzLxLG4iqnq0HCs6K6I_1fdJsgRd4z_Rx7H2a-n0zUiLuZxXLXPi0UglIPKgRLSiFK2FI8vMBWdnl",
+    "url": "https://www.nykaa.com/colgate-strong-teeth-anticavity-toothpaste-with-amino-shakti-saver-pack-500gm/p/647109?ptype=product&skuId=647109&srsltid=AfmBOop5jx7fz7ZaaRLvDyyUAFqSyLrFhGjoOkODUktEPINETG4GQl3kAuE",
+    "tags": [
+      "toothpaste",
+      "oral care",
+      "whitening"
+    ]
+  },
+  {
+    "id": "2",
+    "title": "Oral-B Toothbrush",
+    "description": "Soft bristles for daily cleaning.",
+    "brand": "Oral-B",
+    "category": "Toothbrush",
+    "price": 3.49,
+    "currency": "USD",
+    "rating": 4.6,
+    "stock": 75,
+    "image": "https://images-static.nykaa.com/media/catalog/product/5/e/5e39a044902430888332_1.jpg",
+    "url": "https://www.nykaa.com/oral-b-cavity-defense-123-toothbrush-soft-pack-of-6/p/475557?productId=475557&pps=6",
+    "tags": [
+      "toothbrush",
+      "oral care"
+    ]
+  }
+]
