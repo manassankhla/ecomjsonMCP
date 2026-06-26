@@ -16,15 +16,11 @@ function createServer() {
     version: "1.0.0",
   });
 
-  server.registerTool(
+  server.tool(
     "search_products",
+    "Search products from the local catalog.",
     {
-      title: "Search Products",
-      description: "Search products from the local catalog.",
-
-      inputSchema: z.object({
-        query: z.string(),
-      }),
+      query: z.string(),
     },
     async ({ query }) => {
       const products = searchProducts(query);
@@ -36,9 +32,10 @@ function createServer() {
             text: `Found ${products.length} product(s).`,
           },
         ],
-
-        structuredContent: {
-          products,
+        _meta: {
+          ui: {
+            resourceUri: "https://ecomjson-mcp.vercel.app/widget",
+          },
         },
       };
     }
