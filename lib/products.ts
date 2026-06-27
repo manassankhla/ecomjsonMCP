@@ -113,7 +113,7 @@ const CATALOG_WIDE_QUERIES = new Set([
   "browse all",
 ]);
 
-function isCatalogWideQuery(query?: string): boolean {
+export function isCatalogWideQuery(query?: string): boolean {
   if (!query?.trim()) {
     return true;
   }
