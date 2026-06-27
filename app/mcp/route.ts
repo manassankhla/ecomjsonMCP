@@ -91,7 +91,12 @@
         const products = await searchProducts(query);
 
         return {
-        content: [],
+        content: [
+  {
+    type: "text",
+    text: `Found ${products.length} products.`,
+  },
+],
           structuredContent: {
             products,
           },
