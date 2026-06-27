@@ -92,10 +92,10 @@
 
         return {
         content: [
-  {
-    type: "text",
-    text: `Found ${products.length} products.`,
-  },
+ {
+      type: "text",
+      text: `Found ${products.length} product(s).`,
+    },
 ],
           structuredContent: {
             products,
