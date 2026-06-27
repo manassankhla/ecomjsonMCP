@@ -9,7 +9,15 @@ import {
 } from "@/lib/mcp-widget-config";
 import { buildProductToolResult } from "@/lib/product-tool-result";
 import { createProductWidgetHtml } from "@/lib/product-widget-html";
-import { getProducts, isCatalogWideQuery } from "@/lib/products";
+import {
+  getFeaturedProducts,
+  getProductForCheckout,
+  getProducts,
+  getProductsByTag,
+  getProductsUnderPrice,
+  getRecommendedProducts,
+  isCatalogWideQuery,
+} from "@/lib/products";
 
 const optionalQuerySchema = z.object({
   query: z
@@ -28,6 +36,20 @@ const requiredQuerySchema = z.object({
     ),
 });
 
+const optionalSeedSchema = z.object({
+  seed: z
+    .string()
+    .optional()
+    .describe("Optional product name, handle, or theme to recommend similar products from."),
+});
+
+const priceFilterSchema = z.object({
+  maxPrice: z
+    .number()
+    .positive()
+    .describe("Maximum product price in USD, such as 500 or 1000."),
+});
+
 const productOutputSchema = z.object({
   count: z.number(),
   label: z.string(),
@@ -41,6 +63,9 @@ const productOutputSchema = z.object({
       image: z.string(),
       price: z.string(),
       handle: z.string(),
+      productUrl: z.string(),
+      checkoutUrl: z.string(),
+      variantId: z.string(),
     })
   ),
 });
@@ -49,7 +74,17 @@ async function runProductTool(query?: string) {
   const products = await getProducts(query);
   const label = isCatalogWideQuery(query)
     ? `Loaded ${products.length} products from the catalog.`
-    : `Found ${products.length} matching products.`;
+    : `Showing ${products.length} products for ${query}.`;
+
+  return { products, label };
+}
+
+async function runCheckoutTool(query: string) {
+  const product = await getProductForCheckout(query);
+  const products = product ? [product] : [];
+  const label = product
+    ? `Ready to checkout: ${product.title}.`
+    : `No checkout product found for ${query}.`;
 
   return { products, label };
 }
@@ -132,6 +167,74 @@ const handler = createMcpHandler(
       "Show products from the Shopify catalog in an interactive grid widget. Omit query or pass 'all' to list the full catalog.",
       optionalQuerySchema,
       async (args) => runProductTool(args.query as string | undefined)
+    );
+
+    registerProductTool(
+      "featured_products",
+      "Featured Products",
+      "Show a polished carousel of featured Shopify products with product and checkout actions.",
+      z.object({}),
+      async () => {
+        const products = await getFeaturedProducts();
+        return {
+          products,
+          label: `Showing ${products.length} featured products.`,
+        };
+      }
+    );
+
+    registerProductTool(
+      "products_under_price",
+      "Products Under Price",
+      "Show products under a maximum price in a carousel with checkout actions.",
+      priceFilterSchema,
+      async (args) => {
+        const maxPrice = Number(args.maxPrice);
+        const products = await getProductsUnderPrice(maxPrice);
+        return {
+          products,
+          label: `Showing ${products.length} products under $${maxPrice}.`,
+        };
+      }
+    );
+
+    registerProductTool(
+      "winter_sports_products",
+      "Winter Sports Products",
+      "Show winter or sports products from the catalog in a rich carousel.",
+      z.object({}),
+      async () => {
+        const products = await getProductsByTag("Winter");
+        return {
+          products,
+          label: `Showing ${products.length} winter sports products.`,
+        };
+      }
+    );
+
+    registerProductTool(
+      "recommend_products",
+      "Recommend Products",
+      "Recommend related Shopify products from a product name, handle, or shopping theme.",
+      optionalSeedSchema,
+      async (args) => {
+        const seed = args.seed as string | undefined;
+        const products = await getRecommendedProducts(seed);
+        return {
+          products,
+          label: seed
+            ? `Showing ${products.length} recommendations for ${seed}.`
+            : `Showing ${products.length} recommended products.`,
+        };
+      }
+    );
+
+    registerProductTool(
+      "create_checkout_link",
+      "Create Checkout Link",
+      "Find a Shopify product and show a checkout-ready card with a direct cart checkout action.",
+      requiredQuerySchema,
+      async (args) => runCheckoutTool(args.query as string)
     );
   },
   {

@@ -12,6 +12,9 @@ type Product = {
   image: string;
   price: string;
   handle: string;
+  productUrl: string;
+  checkoutUrl: string;
+  variantId: string;
 };
 
 export default function WidgetPage() {
