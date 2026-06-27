@@ -31,7 +31,7 @@ export async function searchProducts(search: string) {
       }
     `,
     {
-      query: `title:*${search}* OR tag:${search} OR vendor:${search}`,
+     query: search,
     }
   );
 
