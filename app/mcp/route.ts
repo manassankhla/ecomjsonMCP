@@ -100,6 +100,9 @@
               text: `Found ${products.length} product(s).`,
             },
           ],
+          structuredContent: {
+            products,
+          },
           _meta: {
             ...widgetMeta(contentWidget),
             structuredContent: {
