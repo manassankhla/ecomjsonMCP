@@ -27,8 +27,7 @@ export default function WidgetPage() {
 
   const products =
     data?._meta?.structuredContent?.products ||
-    data?.structuredContent?.products ||
-    (data as any)?.products;
+    data?.structuredContent?.products;
 
   if (!products) {
     return (
