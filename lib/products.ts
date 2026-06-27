@@ -31,7 +31,7 @@ export async function searchProducts(search: string) {
       }
     `,
     {
-     query: search,
+      query: search,
     }
   );
 

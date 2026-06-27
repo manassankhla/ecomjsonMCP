@@ -2,31 +2,23 @@
 
 import { useEffect, useState } from "react";
 
-declare global {
-  interface Window {
-    openai?: any;
-  }
-}
-
 export function useWidgetProps<T>() {
   const [data, setData] = useState<T | null>(null);
 
   useEffect(() => {
-    console.log("🔥 window.openai =", window.openai);
+    const timer = setInterval(() => {
+      console.clear();
 
-    if (!window.openai) {
-      console.log("❌ window.openai is undefined");
-      return;
-    }
+      console.log("window.openai =", (window as any).openai);
+      console.log("widgetData =", (window as any).openai?.widgetData);
 
-    console.log("🔥 widgetData =", window.openai.widgetData);
+      if ((window as any).openai?.widgetData) {
+        setData((window as any).openai.widgetData);
+        clearInterval(timer);
+      }
+    }, 500);
 
-    if (window.openai.widgetData) {
-      setData(window.openai.widgetData as T);
-      return;
-    }
-
-    console.log("❌ No widgetData found");
+    return () => clearInterval(timer);
   }, []);
 
   return data;
