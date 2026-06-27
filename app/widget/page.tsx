@@ -13,26 +13,21 @@ type Product = {
   price: string;
   handle: string;
 };
+
 export default function WidgetPage() {
   const data = useWidgetProps<{
+    products?: Product[];
     structuredContent?: {
       products: Product[];
     };
-    _meta?: {
-      structuredContent?: {
-        products: Product[];
-      };
-    };
   }>();
 
-  const products =
-    data?._meta?.structuredContent?.products ||
-    data?.structuredContent?.products;
+  const products = data?.products ?? data?.structuredContent?.products;
 
   if (!products) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        Loading...
+        Open this page from ChatGPT after calling search_products.
       </main>
     );
   }

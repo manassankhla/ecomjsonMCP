@@ -1,25 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
-export function useWidgetProps<T>() {
-  const [data, setData] = useState<T | null>(null);
+type OpenAiGlobals = {
+  toolOutput?: Record<string, unknown>;
+  widgetData?: Record<string, unknown>;
+};
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      console.clear();
+declare global {
+  interface Window {
+    openai?: OpenAiGlobals;
+  }
+}
 
-      console.log("window.openai =", (window as any).openai);
-      console.log("widgetData =", (window as any).openai?.widgetData);
+const SET_GLOBALS_EVENT = "openai:set_globals";
 
-      if ((window as any).openai?.widgetData) {
-        setData((window as any).openai.widgetData);
-        clearInterval(timer);
-      }
-    }, 500);
+function subscribe(onStoreChange: () => void) {
+  window.addEventListener(SET_GLOBALS_EVENT, onStoreChange);
+  return () => window.removeEventListener(SET_GLOBALS_EVENT, onStoreChange);
+}
 
-    return () => clearInterval(timer);
-  }, []);
+function getSnapshot<T>(selector: (globals: OpenAiGlobals) => T | null): T | null {
+  if (typeof window === "undefined" || !window.openai) {
+    return null;
+  }
 
-  return data;
+  return selector(window.openai);
+}
+
+export function useWidgetProps<T extends Record<string, unknown>>() {
+  return useSyncExternalStore(
+    subscribe,
+    () =>
+      getSnapshot((globals) => {
+        const toolOutput = globals.toolOutput as T | undefined;
+        const widgetData = globals.widgetData as T | undefined;
+        return toolOutput ?? widgetData ?? null;
+      }),
+    () => null
+  );
 }
