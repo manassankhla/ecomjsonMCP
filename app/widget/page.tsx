@@ -13,6 +13,7 @@ type Product = {
   price: string;
   handle: string;
 };
+
 export default function WidgetPage() {
   const data = useWidgetProps<{
     structuredContent?: {
@@ -25,9 +26,15 @@ export default function WidgetPage() {
     };
   }>();
 
+  // 👇 Debug - Check what data the widget receives
+  console.log("🔥 Widget Data:", data);
+
   const products =
     data?._meta?.structuredContent?.products ||
     data?.structuredContent?.products;
+
+  // 👇 Debug - Check extracted products
+  console.log("🔥 Products:", products);
 
   if (!products) {
     return (
