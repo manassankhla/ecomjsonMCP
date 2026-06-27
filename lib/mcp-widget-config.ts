@@ -1,4 +1,4 @@
-export const PRODUCT_WIDGET_URI = "ui://widget/product-catalog-v3.html";
+export const PRODUCT_WIDGET_URI = "ui://widget/product-catalog-v4.html";
 
 export function getAppOrigin(): string {
   const fromEnv =

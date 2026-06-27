@@ -8,7 +8,7 @@ import {
 } from "@/lib/mcp-widget-config";
 import { buildProductToolResult } from "@/lib/product-tool-result";
 import { createProductWidgetHtml } from "@/lib/product-widget-html";
-import { listAllProducts, searchProducts } from "@/lib/products";
+import { getProducts } from "@/lib/products";
 
 const productSchema = z.object({
   id: z.string(),
@@ -23,11 +23,6 @@ const productSchema = z.object({
 
 const productOutputSchema = z.object({
   products: z.array(productSchema),
-});
-
-const widgetToolMeta = (widgetDomain: string) => ({
-  ...productWidgetMeta(widgetDomain),
-  "openai/resultCanProduceWidget": true as const,
 });
 
 const handler = createMcpHandler(
@@ -59,56 +54,33 @@ const handler = createMcpHandler(
     );
 
     server.registerTool(
-      "list_all_products",
+      "show_products",
       {
-        title: "List All Products",
+        title: "Show Products",
         description:
-          "Use this when the user asks to show all products, browse the catalog, or see everything in the store. Always call this tool for those requests. Results render in the product grid widget.",
-        inputSchema: z.object({}),
-        outputSchema: productOutputSchema,
-        annotations: {
-          readOnlyHint: true,
-        },
-        _meta: widgetToolMeta(widgetDomain),
-      },
-      async () => {
-        const products = await listAllProducts();
-
-        return buildProductToolResult(
-          products,
-          widgetDomain,
-          widgetHtml,
-          `Loaded ${products.length} products.`
-        );
-      }
-    );
-
-    server.registerTool(
-      "search_products",
-      {
-        title: "Search Products",
-        description:
-          "Use this when the user asks to search or filter products by keyword, brand, or category. Results render in the product grid widget.",
+          "Show products from the Shopify catalog in an interactive grid widget. Omit query or pass 'all' to list the full catalog. Pass keywords like 'snowboard' to search.",
         inputSchema: z.object({
           query: z
             .string()
-            .describe("Search keywords such as snowboard, gift card, or jacket"),
+            .optional()
+            .describe(
+              "Optional search keywords. Leave empty or use 'all' / 'all products' to list the entire catalog."
+            ),
         }),
         outputSchema: productOutputSchema,
         annotations: {
           readOnlyHint: true,
         },
-        _meta: widgetToolMeta(widgetDomain),
+        _meta: productWidgetMeta(widgetDomain),
       },
-      async (args: { query: string }) => {
-        const products = await searchProducts(args.query);
+      async (args: { query?: string }) => {
+        const products = await getProducts(args.query);
+        const label =
+          !args.query?.trim() || args.query.trim().toLowerCase().includes("all")
+            ? `Loaded ${products.length} products from the catalog.`
+            : `Found ${products.length} matching products.`;
 
-        return buildProductToolResult(
-          products,
-          widgetDomain,
-          widgetHtml,
-          `Found ${products.length} matching products.`
-        );
+        return buildProductToolResult(products, widgetDomain, label);
       }
     );
   },
@@ -118,7 +90,7 @@ const handler = createMcpHandler(
       version: "1.0.0",
     },
     instructions:
-      "For product browsing, always call list_all_products or search_products. Never answer with markdown tables or bullet lists of products. The interactive widget displays products with images and prices.",
+      "Always call show_products for product requests. Never list products in markdown tables. The widget renders the catalog automatically.",
   }
 );
 

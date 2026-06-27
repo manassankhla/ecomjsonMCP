@@ -97,12 +97,42 @@ export async function searchProducts(search: string, limit = 50): Promise<Produc
   );
 }
 
-export async function getProducts(query?: string): Promise<Product[]> {
-  const trimmed = query?.trim();
+const CATALOG_WIDE_QUERIES = new Set([
+  "all",
+  "*",
+  "all products",
+  "show all",
+  "show all products",
+  "everything",
+  "catalog",
+  "full catalog",
+  "entire catalog",
+  "list all",
+  "list all products",
+  "browse catalog",
+  "browse all",
+]);
 
-  if (!trimmed || trimmed === "*" || trimmed.toLowerCase() === "all") {
+function isCatalogWideQuery(query?: string): boolean {
+  if (!query?.trim()) {
+    return true;
+  }
+
+  const normalized = query.trim().toLowerCase();
+
+  if (CATALOG_WIDE_QUERIES.has(normalized)) {
+    return true;
+  }
+
+  return /^(show|list|get|display)\s+(me\s+)?(all|every)\s+(products?|items?|catalog)/.test(
+    normalized
+  );
+}
+
+export async function getProducts(query?: string): Promise<Product[]> {
+  if (isCatalogWideQuery(query)) {
     return listAllProducts();
   }
 
-  return searchProducts(trimmed);
+  return searchProducts(query!.trim());
 }
