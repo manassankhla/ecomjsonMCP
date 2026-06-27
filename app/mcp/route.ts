@@ -24,7 +24,7 @@
       "openai/outputTemplate": widget.templateUri,
       "openai/toolInvocation/invoking": widget.invoking,
       "openai/toolInvocation/invoked": widget.invoked,
-      "openai/widgetAccessible": false,
+      "openai/widgetAccessible": true,
       "openai/resultCanProduceWidget": true,
     } as const;
   }
@@ -56,20 +56,24 @@
           "openai/widgetPrefersBorder": true,
         },
       },
-      async (uri: any) => ({
-        contents: [
-          {
-            uri: uri.href,
-            mimeType: "text/html+skybridge",
-            text: `<html>${contentWidget.html}</html>`,
-            _meta: {
-              "openai/widgetDescription": contentWidget.description,
-              "openai/widgetPrefersBorder": true,
-              "openai/widgetDomain": contentWidget.widgetDomain,
+      async (uri: any) => {
+        console.log("🔥 Widget Requested", uri.href);
+
+        return {
+          contents: [
+            {
+              uri: uri.href,
+              mimeType: "text/html+skybridge",
+              text: contentWidget.html,
+              _meta: {
+                "openai/widgetDescription": contentWidget.description,
+                "openai/widgetPrefersBorder": true,
+                "openai/widgetDomain": contentWidget.widgetDomain,
+              },
             },
-          },
-        ],
-      })
+          ],
+        };
+      }
     );
 
     server.registerTool(
@@ -87,12 +91,7 @@
         const products = await searchProducts(query);
 
         return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(products, null, 2),
-            },
-          ],
+        content: [],
           structuredContent: {
             products,
           },
