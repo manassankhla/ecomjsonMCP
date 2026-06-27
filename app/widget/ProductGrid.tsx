@@ -6,11 +6,11 @@ type Product = {
   id: string;
   title: string;
   description: string;
-  price: number;
-  currency: string;
-  rating: number;
+  brand: string;
+  tags: string[];
   image: string;
-  url: string;
+  price: string;
+  handle: string;
 };
 
 export default function ProductGrid({

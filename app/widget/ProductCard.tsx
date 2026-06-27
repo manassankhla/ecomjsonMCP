@@ -4,11 +4,11 @@ type Product = {
   id: string;
   title: string;
   description: string;
-  price: number;
-  currency: string;
-  rating: number;
+  brand: string;
+  tags: string[];
   image: string;
-  url: string;
+  price: string;
+  handle: string;
 };
 
 export default function ProductCard({
@@ -36,21 +36,21 @@ export default function ProductCard({
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-700">
+          {/* <span className="rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-700">
             ⭐ {product.rating}
-          </span>
+          </span> */}
 
           <span className="text-xl font-bold">
-            {product.currency} {product.price}
+             ${product.price}
           </span>
         </div>
 
-        <a
-          href={product.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block rounded-xl bg-black py-3 text-center font-medium text-white transition hover:opacity-90 dark:bg-white dark:text-black"
-        >
+       <a
+  href={`https://manas-testing.myshopify.com/products/${product.handle}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="block rounded-xl bg-black py-3 text-center font-medium text-white"
+>
           View Product
         </a>
       </div>
