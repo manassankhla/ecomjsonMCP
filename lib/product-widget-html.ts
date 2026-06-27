@@ -16,19 +16,18 @@ export function createProductWidgetHtml() {
 
       body {
         margin: 0;
-        background: #1f1f1f;
+        background: transparent;
         color: #f6f6f6;
       }
 
       main {
-        padding: 14px;
+        padding: 8px;
       }
 
       .shell {
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        border-radius: 18px;
-        background: #252525;
-        padding: 12px;
+        border-radius: 16px;
+        background: #222;
+        padding: 10px;
       }
 
       .header {
@@ -75,7 +74,7 @@ export function createProductWidgetHtml() {
       .carousel {
         display: grid;
         gap: 12px;
-        grid-auto-columns: minmax(210px, 245px);
+        grid-auto-columns: minmax(240px, 276px);
         grid-auto-flow: column;
         overflow-x: auto;
         overscroll-behavior-inline: contain;
@@ -164,22 +163,21 @@ export function createProductWidgetHtml() {
       }
 
       .footer {
-        align-items: center;
+        align-items: stretch;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         display: flex;
+        flex-direction: column;
         gap: 10px;
-        justify-content: space-between;
         padding-top: 10px;
       }
 
       .price {
-        font-size: 20px;
+        font-size: 19px;
         font-weight: 800;
       }
 
       .actions {
         display: flex;
-        flex: 0 0 auto;
         gap: 7px;
       }
 
@@ -187,10 +185,11 @@ export function createProductWidgetHtml() {
         border: 1px solid rgba(255, 255, 255, 0.22);
         border-radius: 8px;
         color: #f6f6f6;
-        flex: 0 0 auto;
+        flex: 1 1 0;
         font-size: 13px;
         font-weight: 700;
         padding: 9px 11px;
+        text-align: center;
         text-decoration: none;
       }
 
@@ -205,6 +204,69 @@ export function createProductWidgetHtml() {
         padding: 18px;
       }
 
+      .detail {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: minmax(0, 1fr) minmax(230px, 0.78fr);
+      }
+
+      .gallery {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: minmax(0, 1fr) 96px;
+      }
+
+      .hero-image,
+      .thumb-image {
+        background: #f7f7f7;
+        display: block;
+        object-fit: cover;
+        width: 100%;
+      }
+
+      .hero-image {
+        aspect-ratio: 1.22 / 1;
+        border-radius: 14px;
+      }
+
+      .thumbs {
+        display: grid;
+        gap: 10px;
+      }
+
+      .thumb-image {
+        aspect-ratio: 1 / 1;
+        border-radius: 10px;
+      }
+
+      .detail-copy {
+        align-self: center;
+        display: grid;
+        gap: 12px;
+      }
+
+      .detail-title {
+        font-size: 24px;
+        line-height: 1.08;
+        margin: 0;
+      }
+
+      .detail-description {
+        color: #c9c9c9;
+        display: -webkit-box;
+        font-size: 13px;
+        line-height: 1.45;
+        margin: 0;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+      }
+
+      .detail-actions {
+        display: flex;
+        gap: 8px;
+      }
+
       @media (max-width: 520px) {
         main {
           padding: 10px;
@@ -215,7 +277,15 @@ export function createProductWidgetHtml() {
         }
 
         .carousel {
-          grid-auto-columns: minmax(205px, 82%);
+          grid-auto-columns: minmax(235px, 86%);
+        }
+
+        .detail {
+          grid-template-columns: 1fr;
+        }
+
+        .gallery {
+          grid-template-columns: 1fr 76px;
         }
       }
     </style>
@@ -286,12 +356,59 @@ export function createProductWidgetHtml() {
         });
       }
 
+      function getImages(product) {
+        const images = Array.isArray(product.images) ? product.images : [];
+        const allImages = [product.image, ...images].filter(Boolean);
+        return [...new Set(allImages)].slice(0, 3);
+      }
+
+      function renderProductDetail(product) {
+        const title = escapeHtml(product.title);
+        const brand = escapeHtml(product.brand || "Shopify");
+        const description = escapeHtml(product.description || "No description is available for this product.");
+        const handle = product.handle ?? "";
+        const productUrl = escapeHtml(product.productUrl || ("https://manas-testing.myshopify.com/products/" + encodeURIComponent(handle)));
+        const checkoutUrl = escapeHtml(product.checkoutUrl || productUrl);
+        const tags = Array.isArray(product.tags) ? product.tags.slice(0, 4) : [];
+        const images = getImages(product);
+        const mainImage = escapeHtml(images[0] || product.image || "");
+        const thumbs = images.slice(1, 3);
+
+        root.innerHTML =
+          '<section class="shell detail">' +
+            '<div class="gallery">' +
+              (mainImage ? '<img class="hero-image" src="' + mainImage + '" alt="' + title + '" />' : '<div class="hero-image"></div>') +
+              '<div class="thumbs">' +
+                thumbs.map((image, index) => '<img class="thumb-image" src="' + escapeHtml(image) + '" alt="' + title + ' image ' + (index + 2) + '" />').join("") +
+              '</div>' +
+            '</div>' +
+            '<div class="detail-copy">' +
+              '<div><p class="eyebrow">' + brand + '</p><h1 class="detail-title">' + title + '</h1></div>' +
+              '<p class="detail-description">' + description + '</p>' +
+              '<div class="tags">' + tags.map((tag) => '<span class="tag">' + escapeHtml(tag) + '</span>').join("") + '</div>' +
+              '<div><span class="price">' + money(product.price) + '</span></div>' +
+              '<div class="detail-actions"><a href="' + productUrl + '" target="_blank" rel="noopener noreferrer">View product</a><a class="checkout" href="' + checkoutUrl + '" target="_blank" rel="noopener noreferrer">Checkout</a></div>' +
+            '</div>' +
+          '</section>';
+
+        for (const image of root.querySelectorAll("img")) {
+          image.addEventListener("load", notifyHeight, { once: true });
+        }
+
+        notifyHeight();
+      }
+
       function render() {
         const products = getProducts();
 
         if (!products.length) {
           root.innerHTML = '<section class="shell"><p class="empty">No products to show.</p></section>';
           notifyHeight();
+          return;
+        }
+
+        if (products.length === 1) {
+          renderProductDetail(products[0]);
           return;
         }
 

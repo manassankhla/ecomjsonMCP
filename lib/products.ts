@@ -7,6 +7,7 @@ export type Product = {
   brand: string;
   tags: string[];
   image: string;
+  images: string[];
   price: string;
   handle: string;
   productUrl: string;
@@ -23,6 +24,13 @@ const PRODUCT_FIELDS = `
   handle
   featuredImage {
     url
+  }
+  images(first: 3) {
+    edges {
+      node {
+        url
+      }
+    }
   }
   variants(first: 1) {
     edges {
@@ -50,11 +58,16 @@ function mapProduct(node: {
   tags: string[];
   handle: string;
   featuredImage?: { url?: string | null } | null;
+  images?: { edges: Array<{ node: { url?: string | null } }> };
   variants: { edges: Array<{ node: { id: string; price: string } }> };
 }): Product {
   const storeDomain = getShopifyStoreDomain();
   const variantId = getNumericId(node.variants.edges[0]?.node.id);
   const productUrl = `https://${storeDomain}/products/${node.handle}`;
+  const images = [
+    ...(node.featuredImage?.url ? [node.featuredImage.url] : []),
+    ...(node.images?.edges.map(({ node: image }) => image.url).filter(Boolean) ?? []),
+  ].filter((image, index, allImages) => allImages.indexOf(image) === index) as string[];
 
   return {
     id: node.id,
@@ -62,7 +75,8 @@ function mapProduct(node: {
     description: node.description,
     brand: node.vendor,
     tags: node.tags,
-    image: node.featuredImage?.url ?? "",
+    image: images[0] ?? "",
+    images,
     price: node.variants.edges[0]?.node.price ?? "",
     handle: node.handle,
     productUrl,
@@ -156,6 +170,10 @@ export async function getProducts(query?: string): Promise<Product[]> {
   }
 
   const matches = await searchProducts(query!.trim());
+
+  if (matches.length === 1) {
+    return matches;
+  }
 
   if (matches.length >= 4) {
     return matches;

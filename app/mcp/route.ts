@@ -61,6 +61,7 @@ const productOutputSchema = z.object({
       brand: z.string(),
       tags: z.array(z.string()),
       image: z.string(),
+      images: z.array(z.string()),
       price: z.string(),
       handle: z.string(),
       productUrl: z.string(),

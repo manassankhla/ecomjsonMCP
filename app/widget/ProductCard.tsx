@@ -7,6 +7,7 @@ type Product = {
   brand: string;
   tags: string[];
   image: string;
+  images: string[];
   price: string;
   handle: string;
   productUrl: string;
@@ -67,14 +68,14 @@ export default function ProductCard({ product }: { product: Product }) {
           ))}
         </div>
 
-        <div className="flex items-center justify-between gap-2 border-t border-white/10 pt-2.5">
+        <div className="grid gap-2 border-t border-white/10 pt-2.5">
           <span className="text-xl font-extrabold">{price}</span>
-          <div className="flex shrink-0 gap-1.5">
+          <div className="flex gap-1.5">
             <a
               href={productUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-white/20 px-3 py-2 text-sm font-bold text-white"
+              className="flex-1 rounded-lg border border-white/20 px-3 py-2 text-center text-sm font-bold text-white"
             >
               View
             </a>
@@ -82,7 +83,7 @@ export default function ProductCard({ product }: { product: Product }) {
               href={checkoutUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg bg-white px-3 py-2 text-sm font-bold text-neutral-900"
+              className="flex-1 rounded-lg bg-white px-3 py-2 text-center text-sm font-bold text-neutral-900"
             >
               Checkout
             </a>

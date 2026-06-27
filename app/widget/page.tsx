@@ -10,6 +10,7 @@ type Product = {
   brand: string;
   tags: string[];
   image: string;
+  images: string[];
   price: string;
   handle: string;
   productUrl: string;
