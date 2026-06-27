@@ -72,7 +72,6 @@
       })
     );
 
-    // @ts-expect-error
     server.registerTool(
       contentWidget.id,
       {
