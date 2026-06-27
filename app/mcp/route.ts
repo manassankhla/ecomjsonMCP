@@ -21,6 +21,9 @@
 
   function widgetMeta(widget: ContentWidget) {
     return {
+      ui: {
+        resourceUri: widget.templateUri,
+      },
       "openai/outputTemplate": widget.templateUri,
       "openai/toolInvocation/invoking": widget.invoking,
       "openai/toolInvocation/invoked": widget.invoked,
@@ -65,13 +68,13 @@
               uri: uri.href,
               mimeType: "text/html+skybridge",
               text: contentWidget.html,
-              _meta: {
-                "openai/widgetDescription": contentWidget.description,
-                "openai/widgetPrefersBorder": true,
-                "openai/widgetDomain": contentWidget.widgetDomain,
-              },
             },
           ],
+          _meta: {
+            "openai/widgetDescription": contentWidget.description,
+            "openai/widgetPrefersBorder": true,
+            "openai/widgetDomain": contentWidget.widgetDomain,
+          },
         };
       }
     );
@@ -91,22 +94,19 @@
         const products = await searchProducts(query);
 
        return {
-  content: [
-    {
-      type: "text",
-      text: `Found ${products.length} product(s).`,
-    },
-  ],
-  structuredContent: {
-    products,
-  },
-  _meta: {
-    ...widgetMeta(contentWidget),
-    structuredContent: {
-      products,
-    },
-  },
-};
+          content: [
+            {
+              type: "text",
+              text: `Found ${products.length} product(s).`,
+            },
+          ],
+          _meta: {
+            ...widgetMeta(contentWidget),
+            structuredContent: {
+              products,
+            },
+          },
+        };
       }
     );
   });
