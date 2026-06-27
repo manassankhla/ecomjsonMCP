@@ -90,18 +90,23 @@
         const { query } = args;
         const products = await searchProducts(query);
 
-        return {
-        content: [
- {
+       return {
+  content: [
+    {
       type: "text",
       text: `Found ${products.length} product(s).`,
     },
-],
-          structuredContent: {
-            products,
-          },
-          _meta: widgetMeta(contentWidget),
-        };
+  ],
+  structuredContent: {
+    products,
+  },
+  _meta: {
+    ...widgetMeta(contentWidget),
+    structuredContent: {
+      products,
+    },
+  },
+};
       }
     );
   });
