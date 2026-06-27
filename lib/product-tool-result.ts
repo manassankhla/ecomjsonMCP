@@ -1,22 +1,21 @@
-import { productWidgetToolMeta } from "@/lib/mcp-widget-config";
-import type { Product } from "@/lib/products";
+import type { Product } from "./products";
 
-export function buildProductToolResult(
-  products: Product[],
-  label: string
-) {
+export function buildProductToolResult(products: Product[], label: string) {
+  const structuredContent = {
+    count: products.length,
+    label,
+    products,
+  };
+
   return {
     content: [
       {
         type: "text" as const,
-        text: `${label} See the interactive product grid widget below.`,
+        text: label,
       },
     ],
-    structuredContent: {
-      count: products.length,
-    },
+    structuredContent,
     _meta: {
-      ...productWidgetToolMeta(),
       products,
     },
   };

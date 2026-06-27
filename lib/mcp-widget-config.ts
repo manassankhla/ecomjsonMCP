@@ -1,31 +1,35 @@
-export const PRODUCT_WIDGET_URI = "ui://widget/product-catalog-v5.html";
-
-// ChatGPT enables the UI bridge for this MIME type.
+export const PRODUCT_WIDGET_URI = "ui://shopify-product-catalog/product-widget.html";
 export const WIDGET_MIME_TYPE = "text/html;profile=mcp-app";
 
-export function getAppOrigin(): string {
-  const fromEnv =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined);
+export function getAppOrigin() {
+  const configuredOrigin =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.APP_URL ??
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ??
+    process.env.VERCEL_URL;
 
-  if (fromEnv) {
-    return fromEnv.replace(/\/$/, "");
+  if (!configuredOrigin) {
+    return "http://localhost:3000";
   }
 
-  return "http://localhost:3000";
+  const origin = configuredOrigin.startsWith("http")
+    ? configuredOrigin
+    : `https://${configuredOrigin}`;
+
+  return origin.replace(/\/$/, "");
 }
 
 export function productWidgetToolMeta() {
   return {
     ui: {
       resourceUri: PRODUCT_WIDGET_URI,
+      visibility: ["model", "app"],
     },
     "openai/outputTemplate": PRODUCT_WIDGET_URI,
-    "openai/toolInvocation/invoking": "Loading products...",
-    "openai/toolInvocation/invoked": "Products ready",
     "openai/widgetAccessible": true,
-    "openai/resultCanProduceWidget": true,
-  } as const;
+    "openai/toolInvocation/invoking": "Loading products",
+    "openai/toolInvocation/invoked": "Products loaded",
+  };
 }
 
 export function productWidgetResourceMeta(widgetDomain: string, description: string) {
@@ -34,25 +38,27 @@ export function productWidgetResourceMeta(widgetDomain: string, description: str
       prefersBorder: true,
       domain: widgetDomain,
       csp: {
-        connectDomains: [widgetDomain],
+        connectDomains: [widgetDomain, "https://*.myshopify.com"],
         resourceDomains: [
           widgetDomain,
           "https://cdn.shopify.com",
+          "https://*.shopify.com",
           "https://*.myshopify.com",
         ],
       },
     },
     "openai/widgetDescription": description,
-    "openai/widgetPrefersBorder": true,
     "openai/widgetDomain": widgetDomain,
+    "openai/widgetPrefersBorder": true,
     "openai/widgetCSP": {
-      connect_domains: [widgetDomain],
+      connect_domains: [widgetDomain, "https://*.myshopify.com"],
       resource_domains: [
         widgetDomain,
         "https://cdn.shopify.com",
+        "https://*.shopify.com",
         "https://*.myshopify.com",
       ],
       redirect_domains: ["https://manas-testing.myshopify.com"],
     },
-  } as const;
+  };
 }

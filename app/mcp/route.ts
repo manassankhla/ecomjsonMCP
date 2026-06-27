@@ -30,6 +30,19 @@ const requiredQuerySchema = z.object({
 
 const productOutputSchema = z.object({
   count: z.number(),
+  label: z.string(),
+  products: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string(),
+      description: z.string(),
+      brand: z.string(),
+      tags: z.array(z.string()),
+      image: z.string(),
+      price: z.string(),
+      handle: z.string(),
+    })
+  ),
 });
 
 async function runProductTool(query?: string) {

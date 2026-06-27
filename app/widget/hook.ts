@@ -3,7 +3,16 @@
 import { useSyncExternalStore } from "react";
 
 type OpenAiGlobals = {
+  structuredContent?: Record<string, unknown>;
   toolOutput?: Record<string, unknown>;
+  toolResponseMetadata?: {
+    call_tool_result?: {
+      structuredContent?: Record<string, unknown>;
+    };
+    mcp_tool_result?: {
+      structuredContent?: Record<string, unknown>;
+    };
+  };
   widgetData?: Record<string, unknown>;
 };
 
@@ -35,7 +44,16 @@ export function useWidgetProps<T extends Record<string, unknown>>() {
       getSnapshot((globals) => {
         const toolOutput = globals.toolOutput as T | undefined;
         const widgetData = globals.widgetData as T | undefined;
-        return toolOutput ?? widgetData ?? null;
+        const structuredContent = globals.structuredContent as T | undefined;
+        const toolResponse =
+          (globals.toolResponseMetadata?.call_tool_result?.structuredContent as
+            | T
+            | undefined) ??
+          (globals.toolResponseMetadata?.mcp_tool_result?.structuredContent as
+            | T
+            | undefined);
+
+        return toolOutput ?? widgetData ?? structuredContent ?? toolResponse ?? null;
       }),
     () => null
   );

@@ -1,170 +1,158 @@
-const SHOPIFY_STORE = "manas-testing.myshopify.com";
-
-export function createProductWidgetHtml(): string {
-  return `<!DOCTYPE html>
+export function createProductWidgetHtml() {
+  return `<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, sans-serif;
-      background: #fafafa;
-      color: #171717;
-    }
-    main { padding: 16px; }
-    .grid {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    }
-    .card {
-      overflow: hidden;
-      border-radius: 16px;
-      border: 1px solid #e5e5e5;
-      background: #fff;
-      box-shadow: 0 1px 2px rgba(0,0,0,.05);
-    }
-    .card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      display: block;
-      background: #f5f5f5;
-    }
-    .card-body { padding: 16px; }
-    .title {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 600;
-      line-height: 1.3;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .desc {
-      margin: 8px 0 0;
-      font-size: 13px;
-      color: #737373;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .price {
-      display: block;
-      margin-top: 12px;
-      font-size: 18px;
-      font-weight: 700;
-    }
-    .btn {
-      display: block;
-      margin-top: 12px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #000;
-      color: #fff;
-      text-align: center;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-    }
-    .empty, .loading {
-      padding: 32px 16px;
-      text-align: center;
-      color: #737373;
-    }
-  </style>
-</head>
-<body>
-  <main id="root"><div class="loading">Loading products…</div></main>
-  <script type="module">
-    const STORE = ${JSON.stringify(SHOPIFY_STORE)};
-    const root = document.getElementById("root");
-
-    function getProducts() {
-      const output = window.openai?.toolOutput;
-      if (Array.isArray(output?.products)) {
-        return output.products;
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
 
-      const metadata = window.openai?.toolResponseMetadata;
-      if (Array.isArray(metadata?.products)) {
-        return metadata.products;
-      }
-      if (Array.isArray(metadata?._meta?.products)) {
-        return metadata._meta.products;
+      body {
+        margin: 0;
+        background: Canvas;
+        color: CanvasText;
       }
 
-      return [];
-    }
-
-    function hasToolData() {
-      return Boolean(
-        window.openai?.toolOutput ||
-          window.openai?.toolResponseMetadata ||
-          getProducts().length
-      );
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;");
-    }
-
-    function render() {
-      const products = getProducts();
-
-      if (!hasToolData()) {
-        root.innerHTML = '<div class="loading">Loading products…</div>';
-        return;
+      main {
+        padding: 20px;
       }
 
-      if (!products.length) {
-        root.innerHTML =
-          '<div class="empty"><strong>No products found</strong><p>Try another search.</p></div>';
-        return;
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
       }
 
-      root.innerHTML =
-        '<div class="grid">' +
-        products
-          .map((product) => {
-            const href =
-              "https://" +
-              STORE +
-              "/products/" +
-              encodeURIComponent(product.handle || "");
-            return (
-              '<article class="card">' +
-              (product.image
-                ? '<img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.title) + '" />'
-                : "") +
-              '<div class="card-body">' +
-              '<h2 class="title">' + escapeHtml(product.title) + "</h2>" +
-              (product.description
-                ? '<p class="desc">' + escapeHtml(product.description) + "</p>"
-                : "") +
-              '<span class="price">$' + escapeHtml(product.price) + "</span>" +
-              '<a class="btn" href="' + href + '" target="_blank" rel="noopener noreferrer">View Product</a>' +
-              "</div></article>"
-            );
-          })
-          .join("") +
-        "</div>";
+      .card {
+        overflow: hidden;
+        border: 1px solid color-mix(in srgb, CanvasText 14%, transparent);
+        border-radius: 8px;
+        background: Canvas;
+      }
 
-      window.openai?.notifyIntrinsicHeight?.(document.body.scrollHeight);
-    }
+      .image {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        background: color-mix(in srgb, CanvasText 8%, transparent);
+        display: block;
+      }
 
-    window.addEventListener("openai:set_globals", render);
-    render();
-  </script>
-</body>
+      .content {
+        display: grid;
+        gap: 10px;
+        padding: 14px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.3;
+      }
+
+      p {
+        margin: 0;
+        color: color-mix(in srgb, CanvasText 68%, transparent);
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .price {
+        font-weight: 700;
+      }
+
+      a {
+        border-radius: 6px;
+        background: CanvasText;
+        color: Canvas;
+        display: block;
+        font-weight: 650;
+        padding: 10px 12px;
+        text-align: center;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="root"></main>
+    <script>
+      const root = document.getElementById("root");
+
+      function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[char]);
+      }
+
+      function getProducts() {
+        const openai = window.openai ?? {};
+        const sources = [
+          openai.toolOutput,
+          openai.widgetData,
+          openai.structuredContent,
+          openai.toolResponse?.structuredContent,
+          openai.toolResponseMetadata?.call_tool_result?.structuredContent,
+          openai.toolResponseMetadata?.mcp_tool_result?.structuredContent,
+        ];
+
+        for (const source of sources) {
+          if (Array.isArray(source?.products)) {
+            return source.products;
+          }
+
+          if (Array.isArray(source?._meta?.products)) {
+            return source._meta.products;
+          }
+        }
+
+        return [];
+      }
+
+      function render() {
+        const products = getProducts();
+
+        if (!products.length) {
+          root.innerHTML = "<p>No products to show.</p>";
+          return;
+        }
+
+        root.innerHTML = '<div class="grid">' + products.map((product) => {
+          const title = escapeHtml(product.title);
+          const description = escapeHtml(product.description || "No description is available for this product.");
+          const image = escapeHtml(product.image);
+          const price = escapeHtml(product.price);
+          const handle = escapeHtml(product.handle);
+          const href = "https://manas-testing.myshopify.com/products/" + encodeURIComponent(product.handle ?? "");
+
+          return '<article class="card">' +
+            (image ? '<img class="image" src="' + image + '" alt="' + title + '" />' : '<div class="image"></div>') +
+            '<div class="content">' +
+              '<h2>' + title + '</h2>' +
+              '<p>' + description + '</p>' +
+              '<div class="meta"><span>' + escapeHtml(product.brand || "") + '</span><span class="price">$' + price + '</span></div>' +
+              '<a href="' + href + '" target="_blank" rel="noopener noreferrer">View Product</a>' +
+            '</div>' +
+          '</article>';
+        }).join("") + "</div>";
+      }
+
+      window.addEventListener("openai:set_globals", render, { passive: true });
+      render();
+    </script>
+  </body>
 </html>`;
 }
