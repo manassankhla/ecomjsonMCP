@@ -87,7 +87,27 @@ export function createProductWidgetHtml(): string {
 
     function getProducts() {
       const output = window.openai?.toolOutput;
-      return Array.isArray(output?.products) ? output.products : [];
+      if (Array.isArray(output?.products)) {
+        return output.products;
+      }
+
+      const metadata = window.openai?.toolResponseMetadata;
+      if (Array.isArray(metadata?.products)) {
+        return metadata.products;
+      }
+      if (Array.isArray(metadata?._meta?.products)) {
+        return metadata._meta.products;
+      }
+
+      return [];
+    }
+
+    function hasToolData() {
+      return Boolean(
+        window.openai?.toolOutput ||
+          window.openai?.toolResponseMetadata ||
+          getProducts().length
+      );
     }
 
     function escapeHtml(value) {
@@ -101,7 +121,7 @@ export function createProductWidgetHtml(): string {
     function render() {
       const products = getProducts();
 
-      if (!window.openai?.toolOutput) {
+      if (!hasToolData()) {
         root.innerHTML = '<div class="loading">Loading products…</div>';
         return;
       }

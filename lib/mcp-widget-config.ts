@@ -1,4 +1,7 @@
-export const PRODUCT_WIDGET_URI = "ui://widget/product-catalog-v4.html";
+export const PRODUCT_WIDGET_URI = "ui://widget/product-catalog-v5.html";
+
+// ChatGPT enables the UI bridge for this MIME type.
+export const WIDGET_MIME_TYPE = "text/html;profile=mcp-app";
 
 export function getAppOrigin(): string {
   const fromEnv =
@@ -12,17 +15,16 @@ export function getAppOrigin(): string {
   return "http://localhost:3000";
 }
 
-export function productWidgetMeta(widgetDomain: string) {
+export function productWidgetToolMeta() {
   return {
     ui: {
       resourceUri: PRODUCT_WIDGET_URI,
     },
     "openai/outputTemplate": PRODUCT_WIDGET_URI,
-    "openai/toolInvocation/invoking": "Searching products...",
-    "openai/toolInvocation/invoked": "Products found",
+    "openai/toolInvocation/invoking": "Loading products...",
+    "openai/toolInvocation/invoked": "Products ready",
     "openai/widgetAccessible": true,
     "openai/resultCanProduceWidget": true,
-    "openai/widgetDomain": widgetDomain,
   } as const;
 }
 

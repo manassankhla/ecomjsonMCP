@@ -2,28 +2,14 @@ import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
 import {
   getAppOrigin,
-  productWidgetMeta,
   productWidgetResourceMeta,
+  productWidgetToolMeta,
   PRODUCT_WIDGET_URI,
+  WIDGET_MIME_TYPE,
 } from "@/lib/mcp-widget-config";
 import { buildProductToolResult } from "@/lib/product-tool-result";
 import { createProductWidgetHtml } from "@/lib/product-widget-html";
 import { getProducts, isCatalogWideQuery } from "@/lib/products";
-
-const productSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string(),
-  brand: z.string(),
-  tags: z.array(z.string()),
-  image: z.string(),
-  price: z.string(),
-  handle: z.string(),
-});
-
-const productOutputSchema = z.object({
-  products: z.array(productSchema),
-});
 
 const optionalQuerySchema = z.object({
   query: z
@@ -42,6 +28,10 @@ const requiredQuerySchema = z.object({
     ),
 });
 
+const productOutputSchema = z.object({
+  count: z.number(),
+});
+
 async function runProductTool(query?: string) {
   const products = await getProducts(query);
   const label = isCatalogWideQuery(query)
@@ -57,7 +47,8 @@ const handler = createMcpHandler(
     const widgetHtml = createProductWidgetHtml();
     const widgetDescription =
       "Interactive product catalog grid with images, prices, and links.";
-    const widgetMeta = productWidgetMeta(widgetDomain);
+    const widgetMeta = productWidgetToolMeta();
+    const resourceMeta = productWidgetResourceMeta(widgetDomain, widgetDescription);
 
     server.registerResource(
       "product-widget",
@@ -65,76 +56,69 @@ const handler = createMcpHandler(
       {
         title: "Product Catalog",
         description: widgetDescription,
-        mimeType: "text/html+skybridge",
-        _meta: productWidgetResourceMeta(widgetDomain, widgetDescription),
+        mimeType: WIDGET_MIME_TYPE,
+        _meta: resourceMeta,
       },
       async () => ({
         contents: [
           {
             uri: PRODUCT_WIDGET_URI,
-            mimeType: "text/html+skybridge",
+            mimeType: WIDGET_MIME_TYPE,
             text: widgetHtml,
-            _meta: productWidgetResourceMeta(widgetDomain, widgetDescription),
+            _meta: resourceMeta,
           },
         ],
       })
     );
 
-    server.registerTool(
+    const registerProductTool = (
+      name: string,
+      title: string,
+      description: string,
+      inputSchema: z.ZodObject<z.ZodRawShape>,
+      handlerFn: (args: Record<string, unknown>) => Promise<{ products: Awaited<ReturnType<typeof getProducts>>; label: string }>
+    ) => {
+      server.registerTool(
+        name,
+        {
+          title,
+          description,
+          inputSchema,
+          outputSchema: productOutputSchema,
+          annotations: {
+            readOnlyHint: true,
+          },
+          _meta: widgetMeta,
+        },
+        async (args) => {
+          const { products, label } = await handlerFn(args);
+          return buildProductToolResult(products, label);
+        }
+      );
+    };
+
+    registerProductTool(
       "search_products",
-      {
-        title: "Search Products",
-        description:
-          "Search or browse the Shopify catalog in an interactive grid widget. Use query 'all' or 'all products' to list everything.",
-        inputSchema: requiredQuerySchema,
-        outputSchema: productOutputSchema,
-        annotations: {
-          readOnlyHint: true,
-        },
-        _meta: widgetMeta,
-      },
-      async (args: { query: string }) => {
-        const { products, label } = await runProductTool(args.query);
-        return buildProductToolResult(products, widgetDomain, label);
-      }
+      "Search Products",
+      "Search or browse the Shopify catalog in an interactive grid widget. Use query 'all' or 'all products' to list everything.",
+      requiredQuerySchema,
+      async (args) => runProductTool(args.query as string)
     );
 
-    server.registerTool(
+    registerProductTool(
       "list_all_products",
-      {
-        title: "List All Products",
-        description:
-          "List the full Shopify catalog in an interactive grid widget. Use when the user asks to show all products.",
-        inputSchema: z.object({}),
-        outputSchema: productOutputSchema,
-        annotations: {
-          readOnlyHint: true,
-        },
-        _meta: widgetMeta,
-      },
-      async () => {
-        const { products, label } = await runProductTool();
-        return buildProductToolResult(products, widgetDomain, label);
-      }
+      "List All Products",
+      "List the full Shopify catalog in an interactive grid widget. Use when the user asks to show all products.",
+      z.object({}),
+      async () => runProductTool()
     );
 
-    server.registerTool(
+    registerProductTool(
       "show_products",
-      {
-        title: "Show Products",
-        description:
-          "Show products from the Shopify catalog in an interactive grid widget. Omit query or pass 'all' to list the full catalog.",
-        inputSchema: optionalQuerySchema,
-        outputSchema: productOutputSchema,
-        annotations: {
-          readOnlyHint: true,
-        },
-        _meta: widgetMeta,
-      },
-      async (args: { query?: string }) => {
-        const { products, label } = await runProductTool(args.query);
-        return buildProductToolResult(products, widgetDomain, label);
-      }
+      "Show Products",
+      "Show products from the Shopify catalog in an interactive grid widget. Omit query or pass 'all' to list the full catalog.",
+      optionalQuerySchema,
+      async (args) => runProductTool(args.query as string | undefined)
     );
   },
   {
@@ -143,7 +127,7 @@ const handler = createMcpHandler(
       version: "1.0.0",
     },
     instructions:
-      "Use search_products, list_all_products, or show_products for product requests. Never list products in markdown tables. The widget renders the catalog automatically.",
+      "Always call a product tool for catalog requests. Do not list products in markdown tables. The widget shows the catalog.",
   }
 );
 
