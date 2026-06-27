@@ -12,28 +12,22 @@ export function useWidgetProps<T>() {
   const [data, setData] = useState<T | null>(null);
 
   useEffect(() => {
+    console.log("🔥 window.openai =", window.openai);
+
     if (!window.openai) {
-      console.error("OpenAI bridge not found");
+      console.log("❌ window.openai is undefined");
       return;
     }
 
-    async function load() {
-      try {
-        // Wait until the bridge is ready
-        await window.openai.ready?.();
+    // Print everything available
+    console.log("🔥 OpenAI keys:", Object.keys(window.openai));
 
-        // Read current tool result
-        const toolResult = await window.openai.getToolResult?.();
-
-        console.log("Tool Result:", toolResult);
-
-        setData(toolResult);
-      } catch (err) {
-        console.error(err);
-      }
+    if ("widgetData" in window.openai) {
+      console.log("🔥 widgetData =", window.openai.widgetData);
+      setData(window.openai.widgetData as T);
+    } else {
+      console.log("❌ widgetData property not found");
     }
-
-    load();
   }, []);
 
   return data;
