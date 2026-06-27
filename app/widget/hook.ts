@@ -19,15 +19,14 @@ export function useWidgetProps<T>() {
       return;
     }
 
-    // Print everything available
-    console.log("🔥 OpenAI keys:", Object.keys(window.openai));
+    console.log("🔥 widgetData =", window.openai.widgetData);
 
-    if ("widgetData" in window.openai) {
-      console.log("🔥 widgetData =", window.openai.widgetData);
+    if (window.openai.widgetData) {
       setData(window.openai.widgetData as T);
-    } else {
-      console.log("❌ widgetData property not found");
+      return;
     }
+
+    console.log("❌ No widgetData found");
   }, []);
 
   return data;

@@ -1,4 +1,4 @@
-import { createMcpHandler } from "mcp-handler";
+ import { createMcpHandler } from "mcp-handler";
   import { z } from "zod";
   import { searchProducts } from "@/lib/products";
 
