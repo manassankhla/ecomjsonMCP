@@ -1,41 +1,46 @@
 import { shopifyFetch } from "./shopify";
 
-export async function searchProducts(search: string) {
-  const { data } = await shopifyFetch(
-    `
-      query SearchProducts($query: String!) {
-        products(first: 20, query: $query) {
-          edges {
-            node {
-              id
-              title
-              description
-              vendor
-              tags
-              handle
+export type Product = {
+  id: string;
+  title: string;
+  description: string;
+  brand: string;
+  tags: string[];
+  image: string;
+  price: string;
+  handle: string;
+};
 
-              featuredImage {
-                url
-              }
-
-              variants(first: 1) {
-                edges {
-                  node {
-                    price
-                  }
-                }
-              }
-            }
-          }
-        }
+const PRODUCT_FIELDS = `
+  id
+  title
+  description
+  vendor
+  tags
+  handle
+  featuredImage {
+    url
+  }
+  variants(first: 1) {
+    edges {
+      node {
+        price
       }
-    `,
-    {
-      query: search,
     }
-  );
+  }
+`;
 
-  return data.products.edges.map(({ node }: any) => ({
+function mapProduct(node: {
+  id: string;
+  title: string;
+  description: string;
+  vendor: string;
+  tags: string[];
+  handle: string;
+  featuredImage?: { url?: string | null } | null;
+  variants: { edges: Array<{ node: { price: string } }> };
+}): Product {
+  return {
     id: node.id,
     title: node.title,
     description: node.description,
@@ -44,5 +49,60 @@ export async function searchProducts(search: string) {
     image: node.featuredImage?.url ?? "",
     price: node.variants.edges[0]?.node.price ?? "",
     handle: node.handle,
-  }));
+  };
+}
+
+export async function listAllProducts(limit = 50): Promise<Product[]> {
+  const { data } = await shopifyFetch(
+    `
+      query ListProducts($first: Int!) {
+        products(first: $first) {
+          edges {
+            node {
+              ${PRODUCT_FIELDS}
+            }
+          }
+        }
+      }
+    `,
+    { first: limit }
+  );
+
+  return data.products.edges.map(({ node }: { node: Parameters<typeof mapProduct>[0] }) =>
+    mapProduct(node)
+  );
+}
+
+export async function searchProducts(search: string, limit = 50): Promise<Product[]> {
+  const { data } = await shopifyFetch(
+    `
+      query SearchProducts($query: String!, $first: Int!) {
+        products(first: $first, query: $query) {
+          edges {
+            node {
+              ${PRODUCT_FIELDS}
+            }
+          }
+        }
+      }
+    `,
+    {
+      query: search,
+      first: limit,
+    }
+  );
+
+  return data.products.edges.map(({ node }: { node: Parameters<typeof mapProduct>[0] }) =>
+    mapProduct(node)
+  );
+}
+
+export async function getProducts(query?: string): Promise<Product[]> {
+  const trimmed = query?.trim();
+
+  if (!trimmed || trimmed === "*" || trimmed.toLowerCase() === "all") {
+    return listAllProducts();
+  }
+
+  return searchProducts(trimmed);
 }
